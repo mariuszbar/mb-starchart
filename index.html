@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Personal Astrology Report — MB Automate</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a84c;
+    --gold-dim: #a07830;
+    --bg: #080810;
+    --surface: #12121f;
+    --surface2: #1a1a2e;
+    --border: #2a2a4a;
+    --text: #e0d8c8;
+    --text-dim: #907868;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 65%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 85%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 35%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(2px 2px at 20% 55%, rgba(201,168,76,0.25) 0%, transparent 100%),
+      radial-gradient(2px 2px at 80% 80%, rgba(201,168,76,0.2) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+
+  .header-symbol {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 18px;
+    filter: drop-shadow(0 0 24px rgba(201,168,76,0.6));
+  }
+
+  .header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .header p {
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    font-family: 'Cinzel', serif;
+  }
+
+  .divider {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 18px auto;
+  }
+
+  /* Solar chart note */
+  .solar-note {
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .solar-note strong {
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 18px;
+    margin-top: 28px;
+    opacity: 0.8;
+  }
+
+  .section-label:first-of-type { margin-top: 0; }
+
+  .field { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+    font-family: 'Cinzel', serif;
+  }
+
+  input, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 15px;
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+  }
+
+  input::placeholder { color: #353555; }
+
+  select option { background: var(--surface2); color: var(--text); }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .token-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    margin-bottom: 26px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 17px;
+    background: linear-gradient(135deg, #7a5a10, #c9a84c, #7a5a10);
+    background-size: 200% 100%;
+    border: none;
+    border-radius: 10px;
+    color: #0d0d1a;
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 28px;
+    transition: background-position 0.3s, box-shadow 0.2s, transform 0.1s;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+  }
+
+  .btn:hover {
+    background-position: 100% 0;
+    box-shadow: 0 6px 30px rgba(201,168,76,0.5);
+  }
+
+  .btn:active { transform: scale(0.99); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* States */
+  .loading, .success, .error-state { display: none; text-align: center; padding: 48px 24px; }
+
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading p {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .loading .sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    font-family: 'Lato', sans-serif;
+  }
+
+  .success h2, .error-state h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+
+  .success h2 { color: var(--gold); }
+  .error-state h2 { color: #e05050; }
+
+  .success p, .error-state p {
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .big-icon { font-size: 54px; margin-bottom: 18px; display: block; }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
+    opacity: 0.5;
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 26px 18px; }
+    .header h1 { font-size: 21px; }
+    .row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <span class="header-symbol">🔮</span>
+    <h1>Your Astrology Report</h1>
+    <div class="divider"></div>
+    <p>Personalised Birth Chart Reading</p>
+  </div>
+
+  <div class="solar-note">
+    <strong>Solar Chart Reading</strong><br>
+    No birth time needed — just your date and place of birth.<br>
+    Your unique planetary positions reveal your personality, love life, career & 2026 forecast.
+  </div>
+
+  <div class="card">
+
+    <div id="formSection">
+
+      <div class="token-badge" id="tokenBadge">
+        ✦ Verifying your order...
+      </div>
+
+      <div class="section-label">Your Details</div>
+
+      <div class="field">
+        <label>First Name</label>
+        <input type="text" id="name" placeholder="Your first name" required>
+      </div>
+
+      <div class="field">
+        <label>Email Address (we'll send your report here)</label>
+        <input type="email" id="email" placeholder="your@email.com" required>
+      </div>
+
+      <div class="field">
+        <label>Gender</label>
+        <select id="gender">
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+          <option value="non-binary">Non-binary / Prefer not to say</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Relationship Status</label>
+        <select id="relationship">
+          <option value="single">Single</option>
+          <option value="in a relationship">In a relationship</option>
+          <option value="married">Married</option>
+          <option value="divorced">Divorced</option>
+          <option value="widowed">Widowed</option>
+          <option value="it's complicated">It's complicated</option>
+        </select>
+      </div>
+
+      <div class="section-label">Date of Birth</div>
+
+      <div class="row">
+        <div class="field">
+          <label>Day</label>
+          <input type="number" id="day" placeholder="DD" min="1" max="31" required>
+        </div>
+        <div class="field">
+          <label>Month</label>
+          <input type="number" id="month" placeholder="MM" min="1" max="12" required>
+        </div>
+        <div class="field">
+          <label>Year</label>
+          <input type="number" id="year" placeholder="YYYY" min="1920" max="2008" required>
+        </div>
+      </div>
+
+      <div class="section-label">Place of Birth</div>
+
+      <div class="field">
+        <label>City of Birth</label>
+        <input type="text" id="city" placeholder="e.g. London" required>
+      </div>
+
+      <div class="field">
+        <label>Country of Birth</label>
+        <input type="text" id="country" placeholder="e.g. United Kingdom" required>
+      </div>
+
+      <button class="btn" id="submitBtn" onclick="submitForm()">
+        ✦ Reveal My Stars ✦
+      </button>
+
+      <p style="text-align:center; margin-top:18px; font-size:11px; color:#504840; line-height:1.8; font-family:'Cinzel',serif; letter-spacing:0.5px;">
+        This reading is provided for entertainment purposes only.<br>
+        MB Automate makes no claims of accuracy or predictive ability.<br>
+        Not a substitute for professional, legal, medical or financial advice of any kind.
+      </p>
+
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loadingSection">
+      <div class="spinner"></div>
+      <p>Reading Your Birth Chart...</p>
+      <p class="sub">This may take up to 2 minutes — please don't close this page</p>
+    </div>
+
+    <!-- Success -->
+    <div class="success" id="successSection">
+      <span class="big-icon">✉️</span>
+      <h2>Your Report Is On Its Way!</h2>
+      <p>
+        Your personalised astrology report has been<br>
+        sent to your email address.<br><br>
+        It should arrive within a few minutes.<br><br>
+        <em style="color:var(--gold);font-size:13px;">Can't see it? Check your spam folder.</em>
+      </p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-state" id="errorSection">
+      <span class="big-icon">⚠️</span>
+      <h2>Something Went Wrong</h2>
+      <p id="errorMessage">
+        Please try again or contact us at<br>
+        <strong style="color:var(--gold)">hello@mbautomate.com</strong>
+      </p>
+    </div>
+
+  </div>
+
+  <p class="footer-note">
+    ★ For entertainment purposes only • © MB Automate 2026 ★
+  </p>
+
+</div>
+
+<script>
+  // ← ZMIEŃ NA SWÓJ URL WEBHOOKA
+  const WEBHOOK_URL = 'https://n8n.mbautomate.com/webhook/astrology';
+
+  // Podstawowe współrzędne miast
+  const cityCoords = {
+    'london': { lat: 51.5074, lon: -0.1278, tz: 0 },
+    'glasgow': { lat: 55.8642, lon: -4.2518, tz: 0 },
+    'edinburgh': { lat: 55.9533, lon: -3.1883, tz: 0 },
+    'manchester': { lat: 53.4808, lon: -2.2426, tz: 0 },
+    'birmingham': { lat: 52.4862, lon: -1.8904, tz: 0 },
+    'leeds': { lat: 53.8008, lon: -1.5491, tz: 0 },
+    'liverpool': { lat: 53.4084, lon: -2.9916, tz: 0 },
+    'bristol': { lat: 51.4545, lon: -2.5879, tz: 0 },
+    'cardiff': { lat: 51.4816, lon: -3.1791, tz: 0 },
+    'belfast': { lat: 54.5973, lon: -5.9301, tz: 0 },
+    'dublin': { lat: 53.3498, lon: -6.2603, tz: 0 },
+    'new york': { lat: 40.7128, lon: -74.0060, tz: -5 },
+    'los angeles': { lat: 34.0522, lon: -118.2437, tz: -8 },
+    'chicago': { lat: 41.8781, lon: -87.6298, tz: -6 },
+    'toronto': { lat: 43.6532, lon: -79.3832, tz: -5 },
+    'sydney': { lat: -33.8688, lon: 151.2093, tz: 10 },
+    'melbourne': { lat: -37.8136, lon: 144.9631, tz: 10 },
+    'paris': { lat: 48.8566, lon: 2.3522, tz: 1 },
+    'berlin': { lat: 52.5200, lon: 13.4050, tz: 1 },
+    'amsterdam': { lat: 52.3676, lon: 4.9041, tz: 1 },
+    'warsaw': { lat: 52.2297, lon: 21.0122, tz: 1 },
+    'default': { lat: 51.5074, lon: -0.1278, tz: 0 }
+  };
+
+  // Token z URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  const badge = document.getElementById('tokenBadge');
+  const btn = document.getElementById('submitBtn');
+
+  if (token) {
+    badge.textContent = '✓ Order verified — fill in your details below';
+    badge.style.color = '#7dc47d';
+    badge.style.borderColor = 'rgba(125,196,125,0.3)';
+  } else {
+    badge.textContent = '⚠ No order token found — please use the link from your purchase';
+    badge.style.color = '#e05050';
+    badge.style.borderColor = 'rgba(224,80,80,0.3)';
+    btn.disabled = true;
+  }
+
+  function getCoords(cityName) {
+    const key = cityName.toLowerCase().trim();
+    return cityCoords[key] || cityCoords['default'];
+  }
+
+  async function submitForm() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const day = parseInt(document.getElementById('day').value);
+    const month = parseInt(document.getElementById('month').value);
+    const year = parseInt(document.getElementById('year').value);
+    const city = document.getElementById('city').value.trim();
+    const country = document.getElementById('country').value.trim();
+    const gender = document.getElementById('gender').value;
+    const relationship = document.getElementById('relationship').value;
+
+    if (!name || !email || !day || !month || !year || !city || !country) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    if (!email.includes('@')) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    const coords = getCoords(city);
+
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('loadingSection').style.display = 'block';
+
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          name, email, gender, relationship,
+          day, month, year,
+          city, country,
+          latitude: coords.lat,
+          longitude: coords.lon,
+          timezone: coords.tz
+        })
+      });
+
+      const data = await response.json();
+
+      document.getElementById('loadingSection').style.display = 'none';
+
+      if (data.success) {
+        document.getElementById('successSection').style.display = 'block';
+      } else {
+        document.getElementById('errorMessage').innerHTML =
+          (data.message || 'Something went wrong.') +
+          '<br><br>Contact us: <strong style="color:var(--gold)">hello@mbautomate.com</strong>';
+        document.getElementById('errorSection').style.display = 'block';
+      }
+
+    } catch (err) {
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('errorMessage').innerHTML =
+        'Connection error. Please try again.<br><br>Or email us: <strong style="color:var(--gold)">hello@mbautomate.com</strong>';
+      document.getElementById('errorSection').style.display = 'block';
+    }
+  }
+</script>
+
+</body>
+</html>
